@@ -1,0 +1,23 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT license.
+
+from setuptools import setup, find_packages
+from setuptools.dist import Distribution
+
+class BinaryDistribution(Distribution):
+    """Distribution which always forces a binary package with platform name"""
+    def has_ext_modules(foo):
+        return True
+
+setup(
+    name='eva',
+    version='${PROJECT_VERSION}',
+    author='Microsoft Research EVA compiler team',
+    author_email='evacompiler@microsoft.com',
+    description='Compiler for the Microsoft SEAL homomorphic encryption library',
+    packages=find_packages('${CMAKE_CURRENT_BINARY_DIR}'),
+    package_data={
+        'eva': ['$<TARGET_FILE_NAME:eva_py>'],
+    },
+    distclass=BinaryDistribution
+)

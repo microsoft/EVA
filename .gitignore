@@ -1,0 +1,19 @@
+/.*/
+/build/
+/dist/
+eva.egg-info/
+__pycache__/
+
+# In-source build files
+Makefile
+CMakeCache.txt
+cmake_install.cmake
+CPackConfig.cmake
+CPackSourceConfig.cmake
+compile_commands.json
+CMakeFiles/
+*.pb.cc
+*.pb.h
+*.a
+*.so
+*.whl

@@ -1,0 +1,23 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
+
+syntax = "proto3";
+
+package eva.msg;
+
+message CKKSParameters {
+    repeated uint32 prime_bits = 1;
+    repeated int32 rotations = 2;
+    uint32 poly_modulus_degree = 3;
+}
+
+message CKKSEncodingInfo {
+    int32 input_type = 1;
+    int32 scale = 2;
+    int32 level = 3;
+}
+
+message CKKSSignature {
+    int32 vec_size = 1;
+    map<string, CKKSEncodingInfo> inputs = 2;
+}

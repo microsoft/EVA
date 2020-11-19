@@ -1,0 +1,46 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
+
+syntax = "proto3";
+
+package eva.msg;
+
+message Term {
+    uint32 op = 1;
+    // Absolute indices to list of terms
+    repeated uint64 operands = 2;
+    repeated Attribute attributes = 3;
+}
+
+message ConstantValue {
+    uint32 size = 1;
+    // If sparse_indices is set then values are interpreted as a sparse set of values
+    // Otherwise values is interpreted as dense with broadcasting semantics and size must divide vec_size
+    // If values is empty then the whole constant is zero
+    repeated double values = 2;
+    repeated uint32 sparse_indices = 3;
+}
+
+message Attribute {
+    uint32 key = 1;
+    oneof value {
+        uint32 uint32 = 2;
+        sint32 int32 = 3;
+        uint32 type = 4;
+        ConstantValue constant_value = 5;
+    }
+}
+
+message TermName {
+    uint64 term = 1;
+    string name = 2;
+}
+
+message Program {
+    uint32 ir_version = 1;
+    string name = 2;
+    uint32 vec_size = 3;
+    repeated Term terms = 4;
+    repeated TermName inputs = 5;
+    repeated TermName outputs = 6;
+}

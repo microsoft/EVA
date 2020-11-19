@@ -1,0 +1,3 @@
+# In-source build files
+setup.py
+setup.py.after_configure

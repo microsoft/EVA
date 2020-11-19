@@ -1,0 +1,108 @@
+# EVA pipeline
+
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- task: UsePythonVersion@0
+  displayName: 'Ensure Python 3.x'
+  inputs:
+    versionSpec: '3.x'
+    addToPath: true
+    architecture: 'x64'
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
+  displayName: 'Run CredScan'
+  inputs:
+    toolMajorVersion: 'V2'
+    outputFormat: sarif
+    debugMode: false
+
+- task: CmdLine@2
+  displayName: 'Get SEAL source code'
+  inputs:
+    script: |
+      rem Use github repo
+      git clone https://github.com/microsoft/SEAL.git
+      cd SEAL
+      rem Use 3.6.0 specifically
+      git checkout 3.6.0
+    workingDirectory: '$(Build.SourcesDirectory)/third_party'
+
+- task: CMake@1
+  displayName: 'Configure SEAL'
+  inputs:
+    cmakeArgs: '-DSEAL_THROW_ON_TRANSPARENT_CIPHERTEXT=OFF -DALLOW_COMMAND_LINE_BUILD=ON -DSEAL_USE_MSGSL=OFF -DSEAL_USE_ZLIB=OFF -DSEAL_USE_ZSTD=OFF .'
+    workingDirectory: $(Build.SourcesDirectory)/third_party/SEAL
+
+- task: MSBuild@1
+  displayName: 'Build SEAL'
+  inputs:
+    solution: '$(Build.SourcesDirectory)/third_party/SEAL/SEAL.sln'
+    msbuildArchitecture: 'x64'
+    platform: 'x64'
+    configuration: 'Debug'
+
+- task: CmdLine@2
+  displayName: 'Get vcpkg'
+  inputs:
+    script: 'git clone https://github.com/microsoft/vcpkg.git'
+    workingDirectory: '$(Build.SourcesDirectory)/third_party'
+
+- task: CmdLine@2
+  displayName: 'Bootstrap vcpkg'
+  inputs:
+    script: '$(Build.SourcesDirectory)/third_party/vcpkg/bootstrap-vcpkg.bat'
+    workingDirectory: '$(Build.SourcesDirectory)/third_party/vcpkg'
+
+- task: PowerShell@2
+  displayName: 'Get protobuf compiler'
+  inputs:
+    targetType: 'inline'
+    script: |
+      mkdir protobuf
+      cd protobuf
+      Invoke-WebRequest -Uri "https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protoc-3.13.0-win64.zip" -OutFile protobufc.zip
+      Expand-Archive -LiteralPath protobufc.zip -DestinationPath protobufc
+    workingDirectory: '$(Build.SourcesDirectory)/third_party'
+
+- task: CmdLine@2
+  displayName: 'Install protobuf library'
+  inputs:
+    script: '$(Build.SourcesDirectory)/third_party/vcpkg/vcpkg.exe install protobuf[zlib]:x64-windows'
+    workingDirectory: '$(Build.SourcesDirectory)/third_party/vcpkg'
+
+- task: CmdLine@2
+  displayName: 'Create build directory'
+  inputs:
+    script: 'mkdir build'
+    workingDirectory: '$(Build.SourcesDirectory)'
+
+- task: CMake@1
+  displayName: 'Configure EVA'
+  inputs:
+    cmakeArgs: .. -DSEAL_DIR=$(Build.SourcesDirectory)/third_party/SEAL/cmake -DProtobuf_INCLUDE_DIR=$(Build.SourcesDirectory)/third_party/vcpkg/packages/protobuf_x64-windows/include -DProtobuf_LIBRARY=$(Build.SourcesDirectory)/third_party/vcpkg/packages/protobuf_x64-windows/lib/libprotobuf.lib -DProtobuf_PROTOC_EXECUTABLE=$(Build.SourcesDirectory)/third_party/protobuf/protobufc/bin/protoc.exe
+    workingDirectory: '$(Build.SourcesDirectory)/build'
+
+- task: MSBuild@1
+  displayName: 'Build EVA'
+  inputs:
+    solution: '$(Build.SourcesDirectory)/build/eva.sln'
+    msbuildArchitecture: 'x64'
+    platform: 'x64'
+    configuration: 'Debug'
+
+- task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+  displayName: 'Component Detection'
+
+- task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
+  displayName: 'Publish Security Analysis Logs'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish build artifacts'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: windows-drop

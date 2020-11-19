@@ -1,0 +1,41 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
+
+syntax = "proto3";
+
+package eva.msg;
+
+import "eva.proto";
+
+message SEALObject {
+    enum SEALType {
+        UNKNOWN = 0;
+        CIPHERTEXT = 1;
+        PLAINTEXT = 2;
+        SECRET_KEY = 3;
+        PUBLIC_KEY = 4;
+        GALOIS_KEYS = 5;
+        RELIN_KEYS = 6;
+        ENCRYPTION_PARAMETERS = 7;
+    }
+    SEALType seal_type = 1;
+    bytes data = 2;
+}
+
+message SEALPublic {
+    SEALObject encryption_parameters = 1;
+    SEALObject public_key = 2;
+    SEALObject galois_keys = 3;
+    SEALObject relin_keys = 4;
+}
+
+message SEALSecret {
+    SEALObject encryption_parameters = 1;
+    SEALObject secret_key = 2;
+}
+
+message SEALValuation {
+    SEALObject encryption_parameters = 1;
+    map<string, SEALObject> values = 2;
+    map<string, ConstantValue> raw_values = 3;
+}

@@ -1,0 +1,13 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
+
+syntax = "proto3";
+
+package eva.msg;
+
+import "google/protobuf/any.proto";
+
+message KnownType {
+    google.protobuf.Any contents = 1;
+    string creator = 2;
+}

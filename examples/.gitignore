@@ -1,0 +1,8 @@
+*.eva
+*.evaparams
+*.evasignature
+*.sealpublic
+*.sealsecret
+*.sealvals
+*_encrypted.png
+*_reference.png
