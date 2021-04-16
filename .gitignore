@@ -17,3 +17,4 @@ CMakeFiles/
 *.a
 *.so
 *.whl
+_deps
