@@ -2,8 +2,7 @@ include(FetchContent)
 
 set(SEAL_BUILD_DEPS ON)
 set(SEAL_USE_MSGSL ON)
-set(SEAL_USE_INTEL_HEXL ON)
-set(SEAL_THROW_ON_TRANSPARENT_CIPHERTEXT OFF)
+option(SEAL_THROW_ON_TRANSPARENT_CIPHERTEXT OFF)
 
 FetchContent_Declare(
   com_microsoft_seal
