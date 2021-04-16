@@ -35,5 +35,5 @@ if(USE_GALOIS)
     include(cmake/galois.cmake)
 endif()
 
-add_subdirectory(eva)
-add_subdirectory(python)
+include(cmake/eva.cmake)
+include(cmake/python.cmake)
