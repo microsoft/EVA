@@ -1,4 +1,4 @@
 #!/bin/sh
 
 cmake . && make -j
-python -m pip install -e python/
+python -m pip install python/
