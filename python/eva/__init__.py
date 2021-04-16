@@ -1,16 +1,19 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT license.
 
-from ._eva import *
+from ._eva import Term, Op, Program, Type
 import numbers
 
 _current_program = None
+
+
 def _curr():
     """ Returns the EvaProgram that is currently in context """
     global _current_program
-    if _current_program == None:
+    if _current_program is None:
         raise RuntimeError("No Program in context")
     return _current_program
+
 
 def _py_to_term(x, program):
     """ Maps supported types into EVA terms """
@@ -25,11 +28,12 @@ def _py_to_term(x, program):
     else:
         raise TypeError("No conversion to Term available for " + str(x))
 
-def py_to_eva(x, program = None):
+
+def py_to_eva(x, program=None):
     """ Maps supported types into EVA terms. May be used in library functions
-        to provide uniform support for Expr instances and python types that 
+        to provide uniform support for Expr instances and python types that
         are convertible into constants in EVA programs.
-    
+
         Parameters
         ----------
         x : eva.Expr, EVA native Term, list or a number
@@ -41,14 +45,15 @@ def py_to_eva(x, program = None):
     if isinstance(x, Expr):
         return x
     else:
-        if program == None:
+        if program is None:
             program = _curr()
         return Expr(_py_to_term(x, program), program)
 
-class Expr():
+
+class Expr:
     """ Wrapper for EVA's native Term class. Provides operator overloads that
         create terms in the associated EvaProgram.
-        
+
         Attributes
         ----------
         term
@@ -61,50 +66,83 @@ class Expr():
         self.term = term
         self.program = program
 
-    def __add__(self,other):
+    def __add__(self, other):
         """ Create a new addition term """
-        return Expr(self.program._make_term(Op.Add, [self.term, _py_to_term(other, self.program)]), self.program)
+        return Expr(
+            self.program._make_term(
+                Op.Add, [self.term, _py_to_term(other, self.program)]
+            ),
+            self.program,
+        )
 
-    def __radd__(self,other):
+    def __radd__(self, other):
         """ Create a new addition term """
-        return Expr(self.program._make_term(Op.Add, [_py_to_term(other, self.program), self.term]), self.program)
+        return Expr(
+            self.program._make_term(
+                Op.Add, [_py_to_term(other, self.program), self.term]
+            ),
+            self.program,
+        )
 
-    def __sub__(self,other):
+    def __sub__(self, other):
         """ Create a new subtraction term """
-        return Expr(self.program._make_term(Op.Sub, [self.term, _py_to_term(other, self.program)]), self.program)
+        return Expr(
+            self.program._make_term(
+                Op.Sub, [self.term, _py_to_term(other, self.program)]
+            ),
+            self.program,
+        )
 
-    def __rsub__(self,other):
+    def __rsub__(self, other):
         """ Create a new subtraction term """
-        return Expr(self.program._make_term(Op.Sub, [_py_to_term(other, self.program), self.term]), self.program)
+        return Expr(
+            self.program._make_term(
+                Op.Sub, [_py_to_term(other, self.program), self.term]
+            ),
+            self.program,
+        )
 
-    def __mul__(self,other):
+    def __mul__(self, other):
         """ Create a new multiplication term """
-        return Expr(self.program._make_term(Op.Mul, [self.term, _py_to_term(other, self.program)]), self.program)
+        return Expr(
+            self.program._make_term(
+                Op.Mul, [self.term, _py_to_term(other, self.program)]
+            ),
+            self.program,
+        )
 
-    def __rmul__(self,other):
+    def __rmul__(self, other):
         """ Create a new multiplication term """
-        return Expr(self.program._make_term(Op.Mul, [_py_to_term(other, self.program), self.term]), self.program)
+        return Expr(
+            self.program._make_term(
+                Op.Mul, [_py_to_term(other, self.program), self.term]
+            ),
+            self.program,
+        )
 
-    def __pow__(self,exponent):
+    def __pow__(self, exponent):
         """ Create exponentiation as nested multiplication terms """
         if exponent < 1:
             raise ValueError("exponent must be greater than zero, got " + exponent)
         result = self.term
-        for i in range(exponent-1):
+        for i in range(exponent - 1):
             result = self.program._make_term(Op.Mul, [result, self.term])
         return Expr(result, self.program)
 
-    def __lshift__(self,rotation):
+    def __lshift__(self, rotation):
         """ Create a left rotation term """
         return Expr(self.program._make_left_rotation(self.term, rotation), self.program)
 
-    def __rshift__(self,rotation):
+    def __rshift__(self, rotation):
         """ Create a right rotation term """
-        return Expr(self.program._make_right_rotation(self.term, rotation), self.program)
+        return Expr(
+            self.program._make_right_rotation(self.term, rotation), self.program
+        )
 
     def __neg__(self):
         """ Create a negation term """
         return Expr(self.program._make_term(Op.Negate, [self.term]), self.program)
+
 
 class EvaProgram(Program):
     """ A wrapper for EVA's native Program class. Acts as a context manager to
@@ -112,7 +150,7 @@ class EvaProgram(Program):
 
     def __init__(self, name, vec_size):
         """ Create a new EvaProgram with a name and a vector size
-            
+
             Parameters
             ----------
             name : str
@@ -125,15 +163,16 @@ class EvaProgram(Program):
 
     def __enter__(self):
         global _current_program
-        if _current_program != None:
+        if _current_program is not None:
             raise RuntimeError("There is already an EVA Program in context")
         _current_program = self
-    
+
     def __exit__(self, exc_type, exc_value, exc_traceback):
         global _current_program
         if _current_program != self:
             raise RuntimeError("This program is not currently in context")
         _current_program = None
+
 
 def Input(name, is_encrypted=True):
     """ Create a new named input term in the current EvaProgram
@@ -146,7 +185,10 @@ def Input(name, is_encrypted=True):
             Whether this input should be encrypted or not (default: True)
         """
     program = _curr()
-    return Expr(program._make_input(name, Type.Cipher if is_encrypted else Type.Raw), program)
+    return Expr(
+        program._make_input(name, Type.Cipher if is_encrypted else Type.Raw), program
+    )
+
 
 def Output(name, expr):
     """ Create a new named output term in the current EvaProgram
