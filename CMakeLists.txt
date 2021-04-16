@@ -15,12 +15,6 @@ project(eva
     LANGUAGES CXX
 )
 
-find_package(Python COMPONENTS Interpreter Development)
-if(NOT Python_VERSION_MAJOR EQUAL 3)
-    message(FATAL_ERROR "EVA requires Python 3. Please ensure you have it
-        installed in a location searched by CMake.")
-endif()
-
 option(USE_GALOIS "Use the Galois library for multicore homomorphic evaluation" OFF)
 if(USE_GALOIS)
   message("Galois based multicore support enabled")
