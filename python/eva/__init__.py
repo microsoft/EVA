@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT license.
 
-from ._eva import *
+from eva._eva import *
 import numbers
 
 _current_program = None
