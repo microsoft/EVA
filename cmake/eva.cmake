@@ -18,7 +18,7 @@ set(EVA_SOURCES
 
 if(USE_GALOIS)
      set(EVA_SOURCES ${EVA_SOURCES}
-         eval/util/galois.cpp
+         eva/util/galois.cpp
      )
 endif()
 
