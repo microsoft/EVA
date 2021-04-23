@@ -27,7 +27,7 @@ sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++ 100
 
 Next install Microsoft SEAL version 3.6:
 ```
-git clone -b v3.6.0 https://github.com/microsoft/SEAL.git
+git clone -b v3.6.4 https://github.com/microsoft/SEAL.git
 cd SEAL
 cmake -DSEAL_THROW_ON_TRANSPARENT_CIPHERTEXT=OFF .
 make -j
