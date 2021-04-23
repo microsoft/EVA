@@ -53,6 +53,10 @@ public:
   void operator()(
       Term::Ptr &term) { // must only be used with backward pass traversal
     if (term->numUses() == 0) return;
+
+    //we do not want to add modswitch for nodes of type raw
+    if (type[term] == Type::Raw) return;
+
     if (term->op == Op::Encode) {
       encodeNodes.push_back(term);
     }
