@@ -19,5 +19,8 @@ setup(
     package_data={
         'eva': ['$<TARGET_FILE_NAME:eva_py>'],
     },
-    distclass=BinaryDistribution
+    distclass=BinaryDistribution,
+    install_requires=[
+        'psutil',
+    ],
 )

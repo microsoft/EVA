@@ -3,6 +3,15 @@
 
 from ._eva import *
 import numbers
+import psutil
+
+# Find the number of CPU cores available to this process. This has to happen before Galois is initialized because it
+# messes with the CPU affinity of the process.
+_default_num_threads = len(psutil.Process().cpu_affinity())
+# Initialize Galois here (trying to do it in the static initialization step of the native library hangs).
+_global_guard = _eva._GaloisGuard()
+# Set the default number of threads to use to match the cores.
+set_num_threads(_default_num_threads)
 
 _current_program = None
 def _curr():

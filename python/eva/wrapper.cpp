@@ -5,6 +5,10 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include "eva/eva.h"
+#ifdef EVA_USE_GALOIS
+#include <galois/Galois.h>
+#include "eva/util/galois.h"
+#endif
 
 namespace py = pybind11;
 using namespace eva;
@@ -119,6 +123,24 @@ path : str
 Returns
 -------
 An object of the same class as was previously serialized)DELIMITER", py::arg("path"));
+
+  // Multi-core
+  m.def("set_num_threads", [](int num_threads) {
+#ifdef EVA_USE_GALOIS
+  galois::setActiveThreads(num_threads);
+#endif
+  }, py::arg("num_threads"), R"DELIMITER(Set the number of threads to use for evaluation. EVA must be compiled with multi-core support for this to have an effect.
+
+Parameters
+----------
+num_threads : int
+   The number of threads to use. Must be positive.)DELIMITER");
+// Hack to expose Galois initialization to Python. Initializing Galois with a static initializer hangs.
+#ifdef EVA_USE_GALOIS
+  py::class_<GaloisGuard>(m, "_GaloisGuard").def(py::init());
+#else
+  py::class_<int>(m, "_GaloisGuard").def(py::init());
+#endif
 
   // CKKS compiler
   py::module mckks = m.def_submodule("_ckks", "Python wrapper for EVA CKKS compiler");
