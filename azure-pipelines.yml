@@ -65,7 +65,7 @@ steps:
     script: |
       mkdir protobuf
       cd protobuf
-      Invoke-WebRequest -Uri "https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protoc-3.13.0-win64.zip" -OutFile protobufc.zip
+      Invoke-WebRequest -Uri "https://github.com/protocolbuffers/protobuf/releases/download/v3.15.8/protoc-3.15.8-win64.zip" -OutFile protobufc.zip
       Expand-Archive -LiteralPath protobufc.zip -DestinationPath protobufc
     workingDirectory: '$(Build.SourcesDirectory)/third_party'
 
