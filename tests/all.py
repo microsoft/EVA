@@ -6,5 +6,5 @@ from features import *
 from large_programs import *
 from std import *
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

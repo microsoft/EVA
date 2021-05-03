@@ -1,0 +1,61 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  Linter:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: [3.8]
+        os: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: .github/workflows/scripts/install_req_ubuntu.sh
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+      - name: Lint with flake8
+        run: .github/workflows/scripts/lint_python.sh
+      - name: Lint with clang-format
+        run: .github/workflows/scripts/lint_cpp.sh
+
+  Tests:
+    needs: [Linter]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9]
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Prepare ENV
+        run: |
+            echo "CC=clang" >> $GITHUB_ENV
+            echo "CXX=clang++" >> $GITHUB_ENV
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+      - name: Install dependencies Ubuntu
+        run: .github/workflows/scripts/install_req_ubuntu.sh
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+      - name: Install dependencies MacOS
+        run: .github/workflows/scripts/install_req_macos.sh
+        if: ${{ matrix.os == 'macos-latest' }}
+      - name: Build the library for Ubuntu/MacOS
+        run: .github/workflows/scripts/build_nix.sh
+      - name: Test
+        run: python tests/all.py
