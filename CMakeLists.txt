@@ -21,19 +21,13 @@ if(USE_GALOIS)
   add_definitions(-DEVA_USE_GALOIS)
 endif()
 
-find_package(SEAL 3.6 REQUIRED)
 find_package(Protobuf 3.6 REQUIRED)
-find_package(Python COMPONENTS Interpreter Development)
 
-if(NOT Python_VERSION_MAJOR EQUAL 3)
-    message(FATAL_ERROR "EVA requires Python 3. Please ensure you have it
-        installed in a location searched by CMake.")
-endif()
-
-add_subdirectory(third_party/pybind11)
+include(cmake/seal.cmake)
+include(cmake/pybind11.cmake)
 if(USE_GALOIS)
-    add_subdirectory(third_party/Galois EXCLUDE_FROM_ALL)
+    include(cmake/galois.cmake)
 endif()
 
-add_subdirectory(eva)
-add_subdirectory(python)
+include(cmake/eva.cmake)
+include(cmake/python.cmake)
