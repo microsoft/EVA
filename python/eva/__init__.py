@@ -2,6 +2,7 @@
 # Licensed under the MIT license.
 
 from _eva import *
+import _eva
 import numbers
 import psutil
 
