@@ -6,13 +6,14 @@ import sys
 import platform
 import subprocess
 import re
-import setuptools
 
 
 from setuptools import setup, find_packages
 from setuptools.dist import Distribution
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
+from setuptools.command.install import install
+from setuptools.command.develop import develop
 from distutils.version import LooseVersion
 
 
@@ -38,6 +39,7 @@ class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=""):
         Extension.__init__(self, name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
+        self.user_cmake_args = []
 
 
 class CMakeBuild(build_ext):
@@ -86,11 +88,32 @@ class CMakeBuild(build_ext):
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
         subprocess.check_call(
-            ["cmake", ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env
+            ["cmake", ext.sourcedir] + cmake_args + ext.user_cmake_args, cwd=self.build_temp, env=env
         )
         subprocess.check_call(
             ["cmake", "--build", "."] + build_args, cwd=self.build_temp
         )
+
+
+def add_eva_options(cls):
+    class eva_cls(cls):
+        user_options = cls.user_options + [("use-galois", None, "Use the Galois library for multicore homomorphic evaluation")]
+
+        def initialize_options(self):
+            cls.initialize_options(self)
+            self.use_galois = False
+
+        def finalize_options(self):
+            cls.finalize_options(self)
+            for ext in self.distribution.ext_modules:
+                if(ext.name == "eva_py"):
+                    ext.user_cmake_args.append("-UUSE_GALOIS")
+                    if self.use_galois:
+                        ext.user_cmake_args.append("-DUSE_GALOIS=ON")
+
+        def run(self):
+            cls.run(self)
+    return eva_cls
 
 
 setup(
@@ -104,6 +127,9 @@ setup(
     packages=["eva", "eva.std", "eva.ckks", "eva.seal"],
     package_dir={"": "python"},
     ext_modules=[CMakeExtension("eva_py")],
-    cmdclass=dict(build_ext=CMakeBuild),
+    cmdclass=dict(build_ext=CMakeBuild, install=add_eva_options(install), develop=add_eva_options(develop)),
     zip_safe=False,
+    install_requires=[
+        'psutil',
+    ],
 )
