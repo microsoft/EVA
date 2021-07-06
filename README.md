@@ -15,7 +15,7 @@ EVA is a native library written in C++17 with bindings for Python. Both Linux an
 
 To install dependencies on Ubuntu 20.04:
 ```
-sudo apt install cmake libboost-all-dev libprotobuf-dev protobuf-compiler
+sudo apt install cmake libboost-all-dev libprotobuf-dev protobuf-compiler libfmt-dev
 ```
 
 Clang is recommended for compilation, as SEAL is faster when compiled with it. To install clang and set it as default:
@@ -25,36 +25,16 @@ sudo update-alternatives --install /usr/bin/cc cc /usr/bin/clang 100
 sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++ 100
 ```
 
-Next install Microsoft SEAL version 3.6:
-```
-git clone -b v3.6.4 https://github.com/microsoft/SEAL.git
-cd SEAL
-cmake -DSEAL_THROW_ON_TRANSPARENT_CIPHERTEXT=OFF .
-make -j
-sudo make install
-```
-*Note that SEAL has to be installed with transparent ciphertext checking turned off, as it is not possible in general to statically ensure a program will not produce a transparent ciphertext. This does not affect the security of ciphertexts encrypted with SEAL.*
-
 ### Building and Installing EVA
 
 #### Building EVA
 
-EVA builds with CMake version ≥ 3.13:
+To install the package with PIP:
 ```
-git submodule update --init
-cmake .
-make -j
-```
-The build process creates a `setup.py` file in `python/`. To install the package for development with PIP:
-```
-python3 -m pip install -e python/
-```
-To create a Python Wheel package for distribution in `dist/`:
-```
-python3 python/setup.py bdist_wheel --dist-dir='.'
+python3 -m pip install .
 ```
 
-To check that the installed Python package is working correctly, run all tests with:
+To check that EVA is working correctly, run all tests with:
 ```
 python3 tests/all.py
 ``` 
@@ -63,9 +43,9 @@ EVA does not yet support installing the native library for use in other CMake pr
 
 #### Multicore Support
 
-EVA features highly scalable multicore support using the [Galois library](https://github.com/IntelligentSoftwareSystems/Galois). It is included as a submodule, but is turned off by default for faster builds and easier debugging. To build EVA with Galois configure with `USE_GALOIS=ON`:
+EVA features highly scalable multicore support using the [Galois library](https://github.com/IntelligentSoftwareSystems/Galois), which is turned off by default for faster builds and easier debugging. To install EVA with multicore support use `setup.py` directly:
 ```
-cmake -DUSE_GALOIS=ON .
+python3 setup.py install --use-galois
 ```
 
 ### Running the Examples

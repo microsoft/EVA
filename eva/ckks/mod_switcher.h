@@ -54,7 +54,7 @@ public:
       Term::Ptr &term) { // must only be used with backward pass traversal
     if (term->numUses() == 0) return;
 
-    //we do not want to add modswitch for nodes of type raw
+    // we do not want to add modswitch for nodes of type raw
     if (type[term] == Type::Raw) return;
 
     if (term->op == Op::Encode) {

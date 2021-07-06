@@ -3,7 +3,8 @@
 
 import numpy as _np
 
-def valuation_mse(a,b):
+
+def valuation_mse(a, b):
     """ Calculate the total mean squared error between two valuations
 
         Parameters
@@ -15,5 +16,5 @@ def valuation_mse(a,b):
         raise ValueError("Valuations must have the same keys")
     mse = 0
     for k in a.keys():
-        mse += _np.mean((_np.array(a[k]) - _np.array(b[k]))**2)
+        mse += _np.mean((_np.array(a[k]) - _np.array(b[k])) ** 2)
     return mse / len(a)

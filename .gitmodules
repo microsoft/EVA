@@ -1,8 +1,0 @@
-[submodule "third_party/pybind11"]
-	path = third_party/pybind11
-	url = https://github.com/pybind/pybind11
-	ignore = untracked
-[submodule "third_party/Galois"]
-	path = third_party/Galois
-	url = https://github.com/IntelligentSoftwareSystems/Galois.git
-	ignore = untracked
