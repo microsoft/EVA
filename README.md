@@ -11,6 +11,8 @@ EVA targets [Microsoft SEAL](https://github.com/microsoft/SEAL) — the industry
 
 EVA is a native library written in C++17 with bindings for Python. Both Linux and Windows are supported. The instructions below show how to get started with EVA on Ubuntu. For building on Windows [EVA's Azure Pipelines script](azure-pipelines.yml) is a useful reference.
 
+You can also build a Docker image with EVA and SEAL installed. This is useful if you want to run EVA on unsupported platforms (e.g. macOS). See [Getting Started with Docker](#getting-started-with-docker) below.
+
 ### Installing Dependencies
 
 To install dependencies on Ubuntu 20.04:
@@ -67,6 +69,24 @@ python3 image_processing.py
 ```
 This will compile and run homomorphic evaluations of a Sobel edge detection filter and a Harris corner detection filter on `examples/baboon.png`, producing results of homomorphic evaluation in `*_encrypted.png` and reference results from normal execution in `*_reference.png`.
 The script also reports the mean squared error between these for each filter.
+
+## Getting Started with Docker
+
+Build the Docker image:
+
+```bash
+docker build -t eva:v1.0.1 .
+```
+
+Run the Docker image:
+
+```bash
+docker run -ti eva:v1.0.1
+```
+
+This will drop you into the running Docker container where you will find a working installation of SEAL and EVA.
+
+> For installing Docker, follow the instructions [here](https://docs.docker.com/get-docker/).
 
 ## Programming with PyEVA
 
